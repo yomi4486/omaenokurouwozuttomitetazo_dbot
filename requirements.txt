@@ -1,0 +1,4 @@
+discord
+ffmpeg
+python-dotenv
+pillow

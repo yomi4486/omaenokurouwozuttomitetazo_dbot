@@ -21,13 +21,17 @@ async def on_message(message:discord.Message):
     if message.author.bot:return
     if f"<@{APPLICATION_ID}>" in message.content:
         text = message.content.replace(f"<@{APPLICATION_ID}> ","").replace(f"<@{APPLICATION_ID}>","").replace("...","…")
-        if len(text) == 0:
-            await message.reply(content=f"`@mention テキスト`で画像作れるぞ")
-            return
-        if create_img.image_process(base_text=f"{text}") == 0:
-            await message.reply(content="",file=discord.File(f'result.png'))
-        else:
-            await message.reply(content="文字数減らせばいいぞ(16文字まで)")
-        
+        try:
+            if len(text) == 0:
+                await message.reply(content=f"`@mention テキスト`で画像作れるぞ")
+                return
+            if create_img.image_process(base_text=f"{text}") == 0:
+                await message.reply(content="",file=discord.File(f'result.png'))
+            else:
+                await message.reply(content="文字数減らせばいいぞ(16文字まで)")
+        except discord.errors.HTTPException:
+            pass
+        except Exception as e:
+            print(e)
 if __name__ == '__main__':
     client.run(TOKEN)

@@ -7,26 +7,77 @@ load_dotenv(verbose=True)
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
-def image_process(base_text:str):
+from PIL import Image, ImageDraw, ImageFont
+import os
+
+from PIL import Image, ImageDraw, ImageFont
+import os
+
+def image_process(base_text: str):
     if len(base_text) > 30:
         return 1
-    if not "\n" in base_text:
-        base_text = f"{base_text[:14]}\n{base_text[14:]}"
+    if "\n" not in base_text:
+        base_text = [f"{base_text[:8]}",f"{base_text[8:]}"]
 
     img = Image.open('main.png')
-    font = ImageFont.truetype(os.environ.get("FONT_PATH"), 40)
+    font = ImageFont.truetype(os.environ.get("FONT_PATH"), 56)
     draw = ImageDraw.Draw(img)
 
-    #左上の点のx座標, 左上の点のy座標, 右下の点のx座標, 右下の点のy座標
-    it = draw.textbbox((431, 230), base_text,align='center')
-    i1 = it[0]
-    i2 = it[2]
+    # Calculate the bounding box of the text
+    bbox = draw.textbbox((0, 0), base_text[0], font=font)
+    text_width = bbox[2] - bbox[0]
+    text_height = bbox[3] - bbox[1]
 
-    l = int(i1)+int(i2)
-    x = l / 4
+    # Calculate the position to center the text
+    x = (img.width - text_width) / 2
+    y = (img.height - text_height) / 1.4
 
-    draw.text((431-x, 230), base_text, 'black',font=font,align='center')
-    img.save("result.jpg")
+    text_width = bbox[2] - bbox[0]
+    text_height = bbox[3] - bbox[1]
+
+    draw.text(
+        (x, y),
+        base_text[0],
+        font=font,
+        fill='white',
+        stroke_width=5,
+        stroke_fill='white',
+        align='center'
+    )
+    draw.text(
+        (x, y),
+        base_text[0],
+        font=font,
+        fill='#FFFF00',
+        stroke_width=2,
+        stroke_fill='black',
+        align='center'
+    )
+    if len(base_text[1])!=0:
+        two_bbox = draw.textbbox((0, 0), base_text[1], font=font)
+        two_text_width = two_bbox[2] - two_bbox[0]
+        two_text_height = two_bbox[3] - two_bbox[1]
+        two_line_x = (img.width - two_text_width) / 2
+        two_line_y = (img.height - two_text_height) / 1.27
+        draw.text(
+            (two_line_x, two_line_y),
+            base_text[1],
+            font=font,
+            fill='white',
+            stroke_width=5,
+            stroke_fill='white',
+            align='center'
+        )
+        draw.text(
+            (two_line_x, two_line_y),
+            base_text[1],
+            font=font,
+            fill='#FFFF00',
+            stroke_width=2,
+            stroke_fill='black',
+            align='center'
+        )
+    img.save("result.png")
     return 0
 
 if __name__ == "__main__":
